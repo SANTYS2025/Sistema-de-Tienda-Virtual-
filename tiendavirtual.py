@@ -65,18 +65,20 @@ class CarritoDeCompras:
 # --- INTERFAZ INTERACTIVA DE CONSOLA ---
 def menu_interactivo():
     carrito = CarritoDeCompras()
+    inventario_general = []  # Lista global para llevar el control del inventario de la tienda
     
     while True:
-        print("\n" + "="*35)
-        print("🛒 SISTEMA DE TIENDA VIRTUAL")
-        print("="*35)
+        print("\n" + "="*42)
+        print("🛒 SISTEMA DE TIENDA VIRTUAL - INVENTARIO")
+        print("="*42)
         print("1. Agregar Ropa al carrito")
         print("2. Agregar Alimento al carrito")
         print("3. Agregar Electrónico al carrito")
-        print("4. Ver Carrito y Procesar Pago")
-        print("5. Salir")
+        print("4. Módulo de Inventario (Consultas y Alertas)")
+        print("5. Ver Carrito y Procesar Pago (Descontar Stock)")
+        print("6. Salir")
         
-        opcion = input("\nElige una opción (1-5): ")
+        opcion = input("\nElige una opción (1-6): ")
 
         if opcion in ['1', '2', '3']:
             try:
@@ -92,11 +94,26 @@ def menu_interactivo():
                     nuevo_producto = ProductoElectronico(nombre, precio, stock)
                     
                 carrito.agregar_producto(nuevo_producto)
-                print(f"✅ ¡'{nombre}' agregado al carrito con éxito!")
+                inventario_general.append(nuevo_producto) # Se guarda en el inventario general
+                print(f"✅ ¡'{nombre}' agregado al carrito e inventario con éxito!")
             except ValueError:
                 print("❌ Error: Por favor ingresa números válidos para el precio y el stock.")
 
         elif opcion == '4':
+            print("\n" + "-"*42)
+            print("📦 MÓDULO DE INVENTARIO - PRODUCTOS DISPONIBLES")
+            print("-"*42)
+            if not inventario_general:
+                print("⚠️ No hay productos registrados en el inventario.")
+            else:
+                for prod in inventario_general:
+                    print(prod.descripcion())
+                    # Alerta automática si quedan pocas unidades (Stock <= 3)
+                    if prod.stock <= 3:
+                        print(f"   🚨 ¡ALERTA! Quedan pocas unidades de '{prod.nombre}' (Stock actual: {prod.stock})")
+                print("-"*42)
+
+        elif opcion == '5':
             if not carrito.productos:
                 print("⚠️ El carrito está vacío. Agrega productos primero.")
                 continue
@@ -116,26 +133,36 @@ def menu_interactivo():
                 print("🧾 FACTURA DETALLADA")
                 print("-"*35)
                 
-                # Demostración del polimorfismo
                 for prod in carrito.productos:
                     print(prod.descripcion())
                     precio_final = prod.calcular_precio_final(desc_base, cupon, es_premium)
-                    print(f"  ↳ Precio con descuento aplicado: ${precio_final:.2f}\n")
+                    print(f"   ↳ Precio con descuento aplicado: ${precio_final:.2f}\n")
                     
                 total = carrito.obtener_total(desc_base, cupon, es_premium)
                 print("="*35)
                 print(f"💰 TOTAL A PAGAR: ${total:.2f}")
                 print("="*35)
                 
+                # Descontar existencias al realizar una compra
+                confirmar = input("¿Desea confirmar y procesar la compra? (s/n): ").strip().lower()
+                if confirmar == 's':
+                    for prod in carrito.productos:
+                        if prod.stock > 0:
+                            prod.stock -= 1  # Descuenta existencias del inventario
+                    print("✅ ¡Compra procesada con éxito! Se han descontado las existencias del inventario.")
+                    carrito.productos.clear()  # Vaciar el carrito después de pagar
+                else:
+                    print("ℹ️ Compra cancelada. Los productos siguen en el carrito.")
+                
             except ValueError:
-                print("❌ Error: Los descuentos deben ser números.")
+                print("❌ Error: Los valores de descuento deben ser numéricos.")
 
-        elif opcion == '5':
+        elif opcion == '6':
             print("👋 ¡Gracias por usar la Tienda Virtual! Hasta luego.")
             break
             
         else:
-            print("❌ Opción no válida. Por favor elige un número del 1 al 5.")
+            print("❌ Opción no válida. Por favor elige un número del 1 al 6.")
 
 if __name__ == "__main__":
     menu_interactivo()
