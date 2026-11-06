@@ -71,7 +71,7 @@ def menu_interactivo():
         print("\n" + "="*42)
         print("🛒 SISTEMA DE TIENDA VIRTUAL - INVENTARIO")
         print("="*42)
-        print("1. Agregar Ropa al carrito")
+        print("1. Agregar Ropa interior")
         print("2. Agregar Alimento al carrito")
         print("3. Agregar Electrónico al carrito")
         print("4. Módulo de Inventario (Consultas y Alertas)")
